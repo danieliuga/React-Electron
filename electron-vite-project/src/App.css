@@ -1,0 +1,35 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.nav {
+  background-color: #333;
+  color: #1C6EA4;
+  padding: 10px;
+  text-align: center;
+  background-color: rgb(173, 253, 253);
+  border: 3px solid #1C6EA4;
+}
+
+.nav h3 {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #1C6EA4;
+  font-weight: bold;
+  font-size: 18px;
+  transition: color 0.3s ease-in-out;
+}
+
+.nav a:hover {
+  color: #61e2c2;
+}
+
+
+
