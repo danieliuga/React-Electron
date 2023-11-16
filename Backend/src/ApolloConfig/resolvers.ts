@@ -21,6 +21,10 @@ const resolvers = {
       await newColor.save();
       return newColor;
     },
+    deleteColor: async (parent, args) => {
+      const { name } = args;
+      await colorModel.deleteOne({ name: name });
+    }
   },
 };
 

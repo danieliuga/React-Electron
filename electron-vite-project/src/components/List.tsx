@@ -1,9 +1,19 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import './List.css'
 import * as Queries from '../apollo/apolloQuery';
 
 function List() {
-  const { loading, data } = useQuery(Queries.getAllColors)
+  const { loading, data  } = useQuery(Queries.getAllColors)
+  const [deleteColor] = useMutation(Queries.deleteColor)
+
+  const deleteOneColor = (name: any) => {
+    deleteColor({
+      variables: {
+        name: name
+      }
+    })
+    location.reload()
+  }
 
   return (
     <div className='list'>
@@ -12,18 +22,23 @@ function List() {
           const divStyle = {
             backgroundColor: Color.hex,
           }
+          const shadowStyle = {
+            boxShadow: `5px 5px 5px 0px ${Color.hex}`,
+          }
           return (
-            <div key={Color.name} className='colors' >
-              {Color.name}
-              {Color.hex}
-              <div className='bgcolor' style={divStyle}>
-
-              </div>
+            <div key={Color.name} className='colors'>
+              <table style={shadowStyle}>
+                <tr className='tr'>
+                  <td>{Color.name}</td>
+                  <td>{Color.hex}</td>
+                  <td><button className='tdButton' onClick={() => deleteOneColor(Color.name)}>Delete</button></td>
+                </tr>
+                <tr><td colSpan={3} className='bgcolor' style={divStyle} /></tr>
+              </table>
             </div>
           )
         })}
       </div>
-
     </div>
   );
 };

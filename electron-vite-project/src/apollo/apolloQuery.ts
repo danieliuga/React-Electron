@@ -14,3 +14,11 @@ query AllColors {
       hex
    }
 }`
+
+export const deleteColor = gql`
+mutation Mutation($name: String!) {
+   deleteColor(name: $name) {
+     name
+   }
+ }
+`;

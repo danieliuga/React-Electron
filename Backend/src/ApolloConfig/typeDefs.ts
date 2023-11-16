@@ -12,6 +12,7 @@ const typeDefs = ` #graphql
             name: String!
         hex: String!
         ): Color
+        deleteColor( name: String!): Color
     }
 `
 export default typeDefs

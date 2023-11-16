@@ -60,7 +60,7 @@ input {
     width: 100px;
     padding: 10px;
     background-color: rgb(130, 193, 239);
-    border: none;
+    border: 2px solid;
     border-radius: 5px;
     color: white;
     font-weight: bold;
@@ -80,7 +80,7 @@ input {
     width: 100px;
     padding: 10px;
     background-color: rgb(130, 193, 239);
-    border: none;
+    border: 2px solid;
     border-radius: 5px;
     color: white;
     font-weight: bold;
@@ -121,4 +121,15 @@ input {
     border: 3px solid #1C6EA4;
     border-radius: 10px;
     color: black;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+}
+
+.error-disable {
+    background-color: rgb(37, 2, 1);
+    border: 2px solid red;
+    color: white;
 }

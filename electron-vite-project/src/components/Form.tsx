@@ -19,33 +19,17 @@ const Form: React.FC<FormProps> = () => {
   const [classSubmmited, setClassSubmmited] = useState('')
   const [message, setMessage] = useState('')
 
-//   const addErrorMessage = (error) => {
-//     if (arrayContain(classNameMessage, error) == false) {
-//         var manegeErrors = [...classNameMessage]
-//         manegeErrors.push(error);
-//         setClassNameMessage(manegeErrors)
-//         setClassName('error')
-//     }
-    
-// }
-
-// const removeErrorMessage = (error) => {
-//     if (arrayContain(classNameMessage, error) == true) {
-//         var manegeErrors = [...classNameMessage]
-//         manegeErrors = arrayWithoutString(manegeErrors, error)
-//         if (manegeErrors.length == 0) setClassName('')
-//         setClassNameMessage(manegeErrors)
-//     }
-// }
-
-//   useEffect(() => {
-//     if (nameColor.length > 0) {
-//       nameColor.addErrorMessage('User cannot contain name')
-//     } else {
-//       nameColor.removeErrorMessage('User cannot contain name')
-//     }
-
-// }, [nameColor, hex])
+  useEffect(() => {
+    if ((nameColor.length === 0 && hex.length > 0) || (nameColor.length > 0 && hex.length === 0)) {
+      setFormSubmitted(false)
+      setClassSubmmited('error-message')
+      setMessage('Color o Hex incorrecto')
+    } else {
+      setFormSubmitted(false);
+      setClassSubmmited('');
+      setMessage('');
+    }
+  }, [nameColor, hex])
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
@@ -56,15 +40,17 @@ const Form: React.FC<FormProps> = () => {
       },
     })
       .then(() => {
-        setFormSubmitted(true)
-        setClassSubmmited('submmited')
-        setMessage('Submitted successfully! :)')
+        if (formSubmitted) {
+          setFormSubmitted(true)
+          setClassSubmmited('submmited')
+          setMessage('Submitted successfully! :)')
+        }
+
       })
       .catch((error) => {
         console.error('Mutation error:', error);
       });
-
-
+      location.reload();
   }
 
   const handleClear = () => {
@@ -97,6 +83,9 @@ const Form: React.FC<FormProps> = () => {
                   onChange={(e) => setHex(e.target.value)}
                 />
               </main>
+              <div className='error-message'>{
+                message
+              }</div>
             </form>
             <footer className='footer'>
               <button type='submit' className='submitButton' onClick={handleSubmit}>Submit</button>
