@@ -3,6 +3,7 @@ import './Form.css'
 import { useMutation } from '@apollo/client';
 import * as Queries from '../apollo/apolloQuery';
 
+
 // para el console.log = control + shift + i
 interface FormProps { }
 
@@ -94,7 +95,7 @@ const Form: React.FC<FormProps> = () => {
             {formSubmitted && (
               <div className={`submmited ${classSubmmited}`}>{message}</div>
             )}
-          </div>
+            </div>
         </section>
       </div>
     </>
