@@ -4,7 +4,7 @@ import { colorModel } from './recipe.js';
 // Define el esquema para el usuario
 
 // Conecta a MongoDB Atlas
-mongoose.connect('mongodb+srv://reiselrol8:Es2W2EtwiX6UwWE@cluster0.n1j9tad.mongodb.net/test', {
+mongoose.connect('mongodb+srv://dani04iuga:6619csh2018@cluster0.btu6omz.mongodb.net/?retryWrites=true&w=majority', {
   dbName: 'ColorFull'
 });
 
@@ -16,8 +16,9 @@ const resolvers = {
   },
   Mutation: {
     addColor: async (parent, args) => {
-      const { name, hex } = args;
-      const newColor = new colorModel({ name, hex });
+      const { name, hex, file } = args;
+      const fileName = file ? file : null;
+      const newColor = new colorModel({ name, hex, fileName});
       await newColor.save();
       return newColor;
     },

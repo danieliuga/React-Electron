@@ -11,7 +11,3 @@ const startServer = async () => {
     console.log('Server ready at ' + url + '!') 
 }
 await startServer()
-
-
-
-

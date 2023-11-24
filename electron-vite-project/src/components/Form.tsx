@@ -3,7 +3,6 @@ import './Form.css'
 import { useMutation } from '@apollo/client';
 import * as Queries from '../apollo/apolloQuery';
 
-
 // para el console.log = control + shift + i
 interface FormProps { }
 
@@ -15,6 +14,8 @@ const Form: React.FC<FormProps> = () => {
       console.error('Error submitting form:', error.message);
     },
   });
+  //Use state file
+  const [file, setFile] = useState<File | null>(null)
 
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [classSubmmited, setClassSubmmited] = useState('')
@@ -34,30 +35,45 @@ const Form: React.FC<FormProps> = () => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
+
+    const fileAsString = file?.toString() || '';
+
     addColor({
       variables: {
         name: nameColor,
-        hex: hex
+        hex: hex,
+        file: fileAsString
       },
     })
       .then(() => {
-        if (formSubmitted) {
           setFormSubmitted(true)
           setClassSubmmited('submmited')
           setMessage('Submitted successfully! :)')
-        }
-
       })
       .catch((error) => {
         console.error('Mutation error:', error);
       });
-      location.reload();
+
+      setFormSubmitted(true);
+      setClassSubmmited('');
+      setMessage('');
+      //location.reload();
   }
 
   const handleClear = () => {
     setnameColor('')
     setHex('')
   }
+
+  //Function to add file
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files && e.target.files[0];
+
+    if (selectedFile) {
+      console.log(selectedFile)
+      setFile(selectedFile);
+    }
+  };
 
   return (
     <>
@@ -83,6 +99,7 @@ const Form: React.FC<FormProps> = () => {
                   value={hex}
                   onChange={(e) => setHex(e.target.value)}
                 />
+                <input type="file" onChange={handleFileChange} />
               </main>
               <div className='error-message'>{
                 message

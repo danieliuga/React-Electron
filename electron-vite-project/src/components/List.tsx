@@ -1,3 +1,4 @@
+
 import { useMutation, useQuery } from '@apollo/client';
 import './List.css'
 import * as Queries from '../apollo/apolloQuery';
@@ -14,11 +15,20 @@ function List() {
     })
     location.reload()
   }
+  if (loading == false) {
+    console.log(data)
+
+  }
+
+  if (loading == false) {
+    console.log(data);
+    
+  }
 
   return (
     <div className='list'>
       <div className='scroll-container'>
-        {loading == false && data.allColors.map((Color: any) => {
+        {loading == false && data?.allColors.map((Color: any) => {
           const divStyle = {
             backgroundColor: Color.hex,
           }
@@ -31,6 +41,7 @@ function List() {
                 <tr className='tr'>
                   <td>{Color.name}</td>
                   <td>{Color.hex}</td>
+                  <td>{Color.file}</td>
                   <td><button className='tdButton' onClick={() => deleteOneColor(Color.name)}>Delete</button></td>
                 </tr>
                 <tr><td colSpan={3} className='bgcolor' style={divStyle} /></tr>
