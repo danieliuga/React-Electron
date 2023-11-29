@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './Form.css'
 import { useMutation } from '@apollo/client';
 import * as Queries from '../apollo/apolloQuery';
@@ -14,8 +14,10 @@ const Form: React.FC<FormProps> = () => {
       console.error('Error submitting form:', error.message);
     },
   });
-  //Use state file
-  const [file, setFile] = useState<File | null>(null)
+  const [file, setFile] = useState<File>()
+  const [data, setData] = useState(null)
+  const [errorData, setErrorData] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [classSubmmited, setClassSubmmited] = useState('')
@@ -35,8 +37,10 @@ const Form: React.FC<FormProps> = () => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
+    //console.log(file?.path.toString());
 
-    const fileAsString = file?.toString() || '';
+    const fileAsString = readFileOnUpload(file)
+    console.log(fileAsString);
 
     addColor({
       variables: {
@@ -45,19 +49,21 @@ const Form: React.FC<FormProps> = () => {
         file: fileAsString
       },
     })
-      .then(() => {
-          setFormSubmitted(true)
-          setClassSubmmited('submmited')
-          setMessage('Submitted successfully! :)')
+      .then((data) => {
+        console.log(data);
+
+        setFormSubmitted(true)
+        setClassSubmmited('submmited')
+        setMessage('Submitted successfully! :)')
       })
       .catch((error) => {
         console.error('Mutation error:', error);
       });
 
-      setFormSubmitted(true);
-      setClassSubmmited('');
-      setMessage('');
-      //location.reload();
+    setFormSubmitted(true);
+    setClassSubmmited('');
+    setMessage('');
+    //location.reload();
   }
 
   const handleClear = () => {
@@ -65,15 +71,88 @@ const Form: React.FC<FormProps> = () => {
     setHex('')
   }
 
-  //Function to add file
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files && e.target.files[0];
+    const selectedFile: any = e.target.files && e.target.files[0];
+    console.log(selectedFile?.path)
 
     if (selectedFile) {
-      console.log(selectedFile)
       setFile(selectedFile);
     }
   };
+
+  // ...
+
+  const readFileOnUpload = (uploadedFile: any) => {
+    // Crear un FileReader para leer como texto
+    const textFileReader = new FileReader();
+    textFileReader.onloadend = () => {
+      if (textFileReader.result !== null) {
+        try {
+          setData(JSON.parse(textFileReader.result as string));
+          setErrorData(null);
+        } catch (e) {
+          setErrorData("**Not valid JSON file!**" as any);
+        }
+      }
+    };
+  
+    // Crear otro FileReader para leer como data URL
+    const dataUrlFileReader = new FileReader();
+    dataUrlFileReader.onloadend = (onFileReadEndEvent: any) => {
+      const image = new Image();
+      image.src = onFileReadEndEvent.target.result;
+      image.onload = () => {
+        setData(onFileReadEndEvent.target.result);
+        setErrorData(null);
+      };
+      image.onerror = () => {
+        setErrorData("Not valid Image!");
+        setData(null);
+      };
+    };
+  
+    if (uploadedFile !== undefined) {
+      // Leer el contenido como texto
+      textFileReader.readAsText(uploadedFile);
+  
+      // Leer el contenido como data URL
+      dataUrlFileReader.readAsDataURL(uploadedFile);
+      
+      // Si hay datos disponibles, retorna el string; de lo contrario, retorna null
+      return textFileReader.result as string | null;
+    }
+  
+    return null;
+  };
+  
+
+
+
+  const readFileWhenSubmit = (event: any) => {
+    event.preventDefault();
+    if (fileRef.current && fileRef.current.files) {
+      const uploadedFile = fileRef.current.files[0];
+      const fileReader = new FileReader();
+
+      fileReader.onloadend = () => {
+        if (fileReader.result !== null) {
+          try {
+            setData(JSON.parse(fileReader.result as string));
+            setErrorData(null);
+          } catch (e) {
+            setErrorData("**Not valid JSON file!**" as any);
+          }
+        }
+      };
+      console.log("uploadFile: " , uploadedFile);
+      
+      if (uploadedFile !== undefined) fileReader.readAsText(uploadedFile);
+
+    } else {
+      console.error("fileRef.current is null");
+    }
+
+  }
 
   return (
     <>
@@ -84,7 +163,7 @@ const Form: React.FC<FormProps> = () => {
               <h2>Añadir</h2>
             </header>
             <form onSubmit={handleSubmit}>
-              <main className='main'>
+              <main className='main' >
                 <label htmlFor="nameColor"></label>
                 <input
                   type="text"
@@ -99,7 +178,11 @@ const Form: React.FC<FormProps> = () => {
                   value={hex}
                   onChange={(e) => setHex(e.target.value)}
                 />
-                <input type="file" onChange={handleFileChange} />
+                <input
+                  type="file"
+                  ref={fileRef}
+                  onChange={(e) => e.target.files && readFileOnUpload(e.target.files[0])}
+                />
               </main>
               <div className='error-message'>{
                 message
@@ -112,7 +195,10 @@ const Form: React.FC<FormProps> = () => {
             {formSubmitted && (
               <div className={`submmited ${classSubmmited}`}>{message}</div>
             )}
-            </div>
+            <form onSubmit={(e) => { readFileWhenSubmit(e) }}>
+              <button >Display File Content</button>
+            </form>
+          </div>
         </section>
       </div>
     </>

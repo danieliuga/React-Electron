@@ -17,8 +17,8 @@ const resolvers = {
   Mutation: {
     addColor: async (parent, args) => {
       const { name, hex, file } = args;
-      const fileName = file ? file : null;
-      const newColor = new colorModel({ name, hex, fileName});
+     
+      const newColor = new colorModel({ name, hex, file});
       await newColor.save();
       return newColor;
     },

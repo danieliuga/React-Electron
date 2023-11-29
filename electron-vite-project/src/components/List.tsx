@@ -20,11 +20,6 @@ function List() {
 
   }
 
-  if (loading == false) {
-    console.log(data);
-    
-  }
-
   return (
     <div className='list'>
       <div className='scroll-container'>
@@ -38,13 +33,15 @@ function List() {
           return (
             <div key={Color.name} className='colors'>
               <table style={shadowStyle}>
-                <tr className='tr'>
+                <tbody>
+                  <tr className='tr'>
                   <td>{Color.name}</td>
                   <td>{Color.hex}</td>
                   <td>{Color.file}</td>
                   <td><button className='tdButton' onClick={() => deleteOneColor(Color.name)}>Delete</button></td>
                 </tr>
                 <tr><td colSpan={3} className='bgcolor' style={divStyle} /></tr>
+                </tbody>
               </table>
             </div>
           )

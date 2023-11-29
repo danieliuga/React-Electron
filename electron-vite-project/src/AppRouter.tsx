@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import About from './components/Inicial'
 import Lista from './components/List'
 import Form from './components/Form'
-
+ 
 const AppRouter = () => {
 
     return (
