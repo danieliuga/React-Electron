@@ -14,8 +14,10 @@ const Form: React.FC<FormProps> = () => {
       console.error('Error submitting form:', error.message);
     },
   });
-  const [file, setFile] = useState<File>()
-  const [data, setData] = useState(null)
+  const [file, setFile] = useState<File | null>();
+  //const [data, setData] = useState(null)
+  const [data, setData] = useState<{ file: string | null }>();
+
   const [errorData, setErrorData] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,16 +44,16 @@ const Form: React.FC<FormProps> = () => {
     e.preventDefault()
 
     //const fileAsString = readFileOnUpload(file)
-    console.log('File Bytes:', fileBytes);
+    //console.log('File Bytes:', fileBytes);
 
     const fileBase64 = fileBytes ? btoa(String.fromCharCode.apply(fileBytes)) : null;
-    console.log('File Base64:', fileBase64);  
+    //console.log('File Base64:', fileBase64);
 
     addColor({
       variables: {
         name: nameColor,
         hex: hex,
-        file: fileBase64
+        file: fileImage
       },
     })
       .then((data) => {
@@ -74,6 +76,7 @@ const Form: React.FC<FormProps> = () => {
   const handleClear = () => {
     setnameColor('')
     setHex('')
+    setFile(null)
   }
 
   const readFileOnUpload = (uploadedFile: any) => {
@@ -89,7 +92,7 @@ const Form: React.FC<FormProps> = () => {
         }
       }
     };
-
+    //ESTO FUNCIONA MAS O MENOS
     // Crear otro FileReader para leer como data URL
     const dataUrlFileReader = new FileReader();
     dataUrlFileReader.onloadend = (onFileReadEndEvent: any) => {
@@ -97,27 +100,42 @@ const Form: React.FC<FormProps> = () => {
       image.src = onFileReadEndEvent.target.result;
 
       image.onload = () => {
-        setData(onFileReadEndEvent.target.result);
+        setData({
+          file: image.src,
+        });
         setErrorData(null);
-
       };
       image.onerror = () => {
         setErrorData("Not valid Image!");
-        setData(null);
+        setData({
+          file: null,
+        });
       };
-
       setFileImage(image.src)
 
     };
 
+    //ESTO FUNCIONA
     // Crear otro FileReader para leer como array de bytes
     const bytesFileReader = new FileReader();
     bytesFileReader.onloadend = () => {
       if (bytesFileReader.result !== null) {
         const arrayBuffer = bytesFileReader.result as ArrayBuffer;
         const bytes = new Uint8Array(arrayBuffer);
-        console.log('Bytes del archivo:', bytes);
+        //console.log('Bytes del archivo:', bytes);
         setFileBytes(bytes);
+
+        if (bytes.length > 0) {
+          const base64String = btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join(''));
+          //console.log('Base64:', base64String);
+
+          const jsonObject = { file: base64String };
+          //console.log('JSON:', JSON.stringify(jsonObject));
+
+          setFileBytes(bytes);
+        } else {
+          console.error('El array de bytes está vacío.');
+        }
       }
     };
 
@@ -164,6 +182,28 @@ const Form: React.FC<FormProps> = () => {
 
   }
 
+  const handleDownload = () => {
+    const jsonData = {
+      name: nameColor,
+      hex,
+      file: fileImage,
+    };
+    const jsonString = JSON.stringify(jsonData);
+
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'archivo.json';
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+  };
+
   return (
     <>
       <div className='app'>
@@ -208,17 +248,23 @@ const Form: React.FC<FormProps> = () => {
             <form onSubmit={(e) => { readFileWhenSubmit(e) }}>
               <button >Display File Content</button>
             </form>
+            {fileBytes && (
+              <div>
+                {/* {fileBytes.join(', ')} */}
+                <button onClick={handleDownload}>Descargar JSON</button>
+              </div>
+            )}
           </div>
-          <div >
-            {/* <img src={fileImage} alt="" /> */}
-            {/* {fileImage} */}
+          {/* <div >
+            <img src={fileImage} alt="" />
+            {fileImage}
           </div>
           {fileBytes && (
             <div>
               <p>Bytes del archivo:</p>
               {fileBytes.join(', ')}
             </div>
-          )}
+          )} */}
         </section>
       </div>
     </>
