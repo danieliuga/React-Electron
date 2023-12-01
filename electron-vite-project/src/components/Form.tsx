@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import './Form.css'
 import { useMutation } from '@apollo/client';
 import * as Queries from '../apollo/apolloQuery';
-// import { readFile } from 'fs/promises';
 
 // para el console.log = control + shift + i
 interface FormProps { }
@@ -23,7 +22,9 @@ const Form: React.FC<FormProps> = () => {
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [classSubmmited, setClassSubmmited] = useState('')
   const [message, setMessage] = useState('')
+
   const [fileImage, setFileImage] = useState<any>("")
+  const [fileBytes, setFileBytes] = useState<Uint8Array | null>(null); // Nuevo estado
 
   useEffect(() => {
     if ((nameColor.length === 0 && hex.length > 0) || (nameColor.length > 0 && hex.length === 0)) {
@@ -40,13 +41,17 @@ const Form: React.FC<FormProps> = () => {
   const handleSubmit = (e: any) => {
     e.preventDefault()
 
-    const fileAsString = readFileOnUpload(file)
+    //const fileAsString = readFileOnUpload(file)
+    console.log('File Bytes:', fileBytes);
+
+    const fileBase64 = fileBytes ? btoa(String.fromCharCode.apply(fileBytes)) : null;
+    console.log('File Base64:', fileBase64);  
 
     addColor({
       variables: {
         name: nameColor,
         hex: hex,
-        file: fileAsString
+        file: fileBase64
       },
     })
       .then((data) => {
@@ -90,10 +95,11 @@ const Form: React.FC<FormProps> = () => {
     dataUrlFileReader.onloadend = (onFileReadEndEvent: any) => {
       const image = new Image();
       image.src = onFileReadEndEvent.target.result;
-      
+
       image.onload = () => {
         setData(onFileReadEndEvent.target.result);
         setErrorData(null);
+
       };
       image.onerror = () => {
         setErrorData("Not valid Image!");
@@ -101,7 +107,18 @@ const Form: React.FC<FormProps> = () => {
       };
 
       setFileImage(image.src)
-      
+
+    };
+
+    // Crear otro FileReader para leer como array de bytes
+    const bytesFileReader = new FileReader();
+    bytesFileReader.onloadend = () => {
+      if (bytesFileReader.result !== null) {
+        const arrayBuffer = bytesFileReader.result as ArrayBuffer;
+        const bytes = new Uint8Array(arrayBuffer);
+        console.log('Bytes del archivo:', bytes);
+        setFileBytes(bytes);
+      }
     };
 
     if (uploadedFile !== undefined) {
@@ -110,6 +127,8 @@ const Form: React.FC<FormProps> = () => {
 
       // Leer el contenido como data URL
       dataUrlFileReader.readAsDataURL(uploadedFile);
+
+      bytesFileReader.readAsArrayBuffer(uploadedFile);
 
       // Si hay datos disponibles, retorna el string; de lo contrario, retorna null
       return textFileReader.result as string | null;
@@ -122,7 +141,7 @@ const Form: React.FC<FormProps> = () => {
     event.preventDefault();
     if (fileRef.current && fileRef.current.files) {
       const uploadedFile = fileRef.current.files[0];
-      
+
       const fileReader = new FileReader();
 
       fileReader.onloadend = () => {
@@ -194,6 +213,12 @@ const Form: React.FC<FormProps> = () => {
             {/* <img src={fileImage} alt="" /> */}
             {/* {fileImage} */}
           </div>
+          {fileBytes && (
+            <div>
+              <p>Bytes del archivo:</p>
+              {fileBytes.join(', ')}
+            </div>
+          )}
         </section>
       </div>
     </>
@@ -201,3 +226,14 @@ const Form: React.FC<FormProps> = () => {
 }
 
 export default Form
+
+/* 
+  1. adjuntar un file
+  2. guardar el file
+  3. mostrar el file
+  4. pasarlo a bytes el file
+  5. crear un json y guradar el file alli
+  6. mostrar el json
+  7. guardarlo en bdd
+  8. boton para descargar el file
+*/
