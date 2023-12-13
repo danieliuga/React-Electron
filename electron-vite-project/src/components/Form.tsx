@@ -9,18 +9,21 @@ interface FormProps { }
 const Form: React.FC<FormProps> = () => {
   const [nameColor, setnameColor] = useState('')
   const [hex, setHex] = useState('')
+  const [fileName, setFileName] = useState<any>("")
+
   const [addColor] = useMutation(Queries.addNewColor, {
     onError: (error) => {
       console.error('Error submitting form:', error.message);
     },
   });
-  const [data, setData] = useState<{ file: string | null, fileContent: string | null }>();
+  const [data, setData] = useState<{ file: string | null; fileContent: string | null }>();
   const [errorData, setErrorData] = useState<string | null>(null);
-  
+
   const [file, setFile] = useState<File | null>();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [fileImage, setFileImage] = useState<any>("")
   const [fileBytes, setFileBytes] = useState<Uint8Array | null>(null);
+
 
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [classSubmmited, setClassSubmmited] = useState('')
@@ -46,7 +49,7 @@ const Form: React.FC<FormProps> = () => {
       variables: {
         name: nameColor,
         hex: hex,
-        file: fileImage
+        fileName: fileName,
       },
     })
       .then((data) => {
@@ -54,7 +57,7 @@ const Form: React.FC<FormProps> = () => {
 
         setFormSubmitted(true)
         setClassSubmmited('submmited')
-        setMessage('Submitted successfully! :)')
+        setMessage('Submitted successfully! :)')  
       })
       .catch((error) => {
         console.error('Mutation error:', error);
@@ -70,10 +73,15 @@ const Form: React.FC<FormProps> = () => {
     setnameColor('')
     setHex('')
     setFile(null)
+    setFileImage(null)
+    setFileBytes(null)
+    setFileImage(null)
   }
 
   const readFileOnUpload = (uploadedFile: any) => {
-    // Crear un FileReader para leer como texto
+    const fileName = uploadedFile.name;
+
+
     const textFileReader = new FileReader();
     textFileReader.onloadend = () => {
       if (textFileReader.result !== null) {
@@ -85,7 +93,7 @@ const Form: React.FC<FormProps> = () => {
         }
       }
     };
-    // Crear otro FileReader para leer como data URL
+
     const dataUrlFileReader = new FileReader();
     dataUrlFileReader.onloadend = (onFileReadEndEvent: any) => {
       const image = new Image();
@@ -95,7 +103,6 @@ const Form: React.FC<FormProps> = () => {
         setData({
           file: image.src,
           fileContent: textFileReader.result as string,
-
         });
         setErrorData(null);
       };
@@ -106,22 +113,20 @@ const Form: React.FC<FormProps> = () => {
           fileContent: null,
         });
       };
-      setFileImage(image.src)
+      setFileImage(image.src)      
 
     };
 
-    // Crear otro FileReader para leer como array de bytes
+
     const bytesFileReader = new FileReader();
     bytesFileReader.onloadend = () => {
       if (bytesFileReader.result !== null) {
         const arrayBuffer = bytesFileReader.result as ArrayBuffer;
         const bytes = new Uint8Array(arrayBuffer);
-        //console.log('Bytes del archivo:', bytes);
         setFileBytes(bytes);
 
         if (bytes.length > 0) {
           const base64String = btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join(''));
-          //console.log('Base64:', base64String);
 
           const jsonObject = { file: base64String };
           //console.log('JSON:', JSON.stringify(jsonObject));
@@ -134,53 +139,26 @@ const Form: React.FC<FormProps> = () => {
     };
 
     if (uploadedFile !== undefined) {
-      // Leer el contenido como texto
-      textFileReader.readAsText(uploadedFile);
 
-      // Leer el contenido como data URL
+      textFileReader.readAsText(uploadedFile);
       dataUrlFileReader.readAsDataURL(uploadedFile);
 
-      // bytesFileReader.readAsArrayBuffer(uploadedFile);
+      setFileName(fileName);
 
       return textFileReader.result as string | null;
     }
     setFile(uploadedFile)
+    setFileName(null)
+
     return null;
   };
-
-  const readFileWhenSubmit = (event: any) => {
-    event.preventDefault();
-    if (fileRef.current && fileRef.current.files) {
-      const uploadedFile = fileRef.current.files[0];
-
-      const fileReader = new FileReader();
-
-      fileReader.onloadend = () => {
-        if (fileReader.result !== null) {
-          try {
-            setData(JSON.parse(fileReader.result as string));
-            setErrorData(null);
-          } catch (e) {
-            setErrorData("**Not valid JSON file!**" as any);
-          }
-        }
-      };
-      console.log("uploadFile: ", uploadedFile);
-
-      if (uploadedFile !== undefined) fileReader.readAsText(uploadedFile);
-
-    } else {
-      console.error("fileRef.current is null");
-    }
-
-  }
 
   const handleDownload = () => {
     const jsonData = {
       name: nameColor,
       hex,
-      file: fileImage,
-      fileContent: data?.file,
+      filename: fileName,
+      fileImage: fileImage
     };
     const jsonString = JSON.stringify(jsonData);
 
@@ -230,6 +208,9 @@ const Form: React.FC<FormProps> = () => {
               <div className='error-message'>{
                 message
               }</div>
+              <div>
+                <img className='file' src={fileImage} alt="" />
+              </div>
             </form>
             <footer className='footer'>
               <button type='submit' className='submitButton' onClick={handleSubmit}>Submit</button>
@@ -238,18 +219,11 @@ const Form: React.FC<FormProps> = () => {
             {formSubmitted && (
               <div className={`submmited ${classSubmmited}`}>{message}</div>
             )}
-            <form onSubmit={(e) => { readFileWhenSubmit(e) }}>
-              <button >Display File Content</button>
-            </form>
             {file !== null && (
               <div>
                 <button onClick={handleDownload}>Descargar JSON</button>
               </div>
             )}
-          </div>
-          <div >
-            {/* <img src={fileImage} alt="" /> */}
-            <a href={fileImage}>File Image</a>
           </div>
         </section>
       </div>
@@ -258,14 +232,3 @@ const Form: React.FC<FormProps> = () => {
 }
 
 export default Form
-
-/* 
-  1. adjuntar un file
-  2. guardar el file
-  3. mostrar el file
-  4. pasarlo a bytes el file
-  5. crear un json y guradar el file alli
-  6. mostrar el json
-  7. guardarlo en bdd
-  8. boton para descargar el file
-*/

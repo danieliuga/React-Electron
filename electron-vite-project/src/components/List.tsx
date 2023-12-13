@@ -4,7 +4,7 @@ import './List.css'
 import * as Queries from '../apollo/apolloQuery';
 
 function List() {
-  const { loading, data  } = useQuery(Queries.getAllColors)
+  const { loading, data } = useQuery(Queries.getAllColors)
   const [deleteColor] = useMutation(Queries.deleteColor)
 
   const deleteOneColor = (name: any) => {
@@ -13,10 +13,15 @@ function List() {
         name: name
       }
     })
+      .catch((error) => {
+        console.error('Error en la solicitud GraphQL:', error);
+      });
+
     location.reload()
   }
+
   if (loading == false) {
-    //console.log(data)
+    console.log(data)
   }
 
   return (
@@ -34,12 +39,13 @@ function List() {
               <table style={shadowStyle}>
                 <tbody>
                   <tr className='tr'>
-                  <td>{Color.name}</td>
-                  <td>{Color.hex}</td>
-                  <td>{Color.file}</td>
-                  <td><button className='tdButton' onClick={() => deleteOneColor(Color.name)}>Delete</button></td>
-                </tr>
-                <tr><td colSpan={3} className='bgcolor' style={divStyle} /></tr>
+                    <td>{Color.name}</td>
+                    <td>{Color.hex}</td>
+                    <td>{Color.fileName}</td>
+                    {/* <td>{Color.file}</td> */}
+                    <td><button className='tdButton' onClick={() => deleteOneColor(Color.name)}>Delete</button></td>
+                  </tr>
+                  <tr><td colSpan={3} className='bgcolor' style={divStyle} /></tr>
                 </tbody>
               </table>
             </div>

@@ -133,3 +133,13 @@ input {
     border: 2px solid red;
     color: white;
 }
+
+.filename {
+    color: black;
+}
+
+.file {
+    width: 25%;
+    height: 25%;
+    margin-top: 15px;
+}

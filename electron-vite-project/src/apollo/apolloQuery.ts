@@ -1,20 +1,20 @@
 import { gql } from '@apollo/client';
 
 export const addNewColor = gql`
-mutation Mutation($name: String!, $hex: String!, $file: String) {
-    addColor(name: $name, hex: $hex, file: $file) {
-      name
-      hex
-      file
-    }
+mutation Mutation($name: String!, $hex: String!, $fileName: String!) {
+  addColor(name: $name, hex: $hex, fileName: $fileName) {
+    name
+    hex
+    fileName
+  }
 }`
 export const getAllColors = gql`
-query AllColors {
-   allColors {
-      name
-      hex
-      file
-   }
+query Query {
+  allColors {
+    name
+    hex
+    fileName
+  }
 }`
 
 export const deleteColor = gql`
