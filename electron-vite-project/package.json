@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "electron-store": "^8.1.0",
     "fs": "^0.0.1-security",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

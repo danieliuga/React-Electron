@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 import path from 'node:path'
+import Store from 'electron-store'
 
 // The built directory structure
 //
@@ -20,13 +21,17 @@ const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 2080,
+    width: 2100,
     height: 1500,
+    // frame:  false,
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   })
+
+  //quitar el menu de la app
+  // win.setMenu(null)
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
@@ -39,6 +44,8 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
+
+
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -59,4 +66,37 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  const template = [
+    {
+      label: 'Salir',
+      submenu: [
+        {
+          label: 'Exit',
+          accelerator: 'Ctrl+H',
+          click: () => {
+            app.quit()
+          }
+        },
+        {
+          label: 'Hola',
+          submenu: [{
+            label: 'Mundo',
+            accelerator: 'Ctrl+Shift+I',
+            click: () => {
+              // app.setPath("Form","/Form");
+              win?.webContents.openDevTools();
+            }
+          }]
+        }
+      ]
+    }
+  ]
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+})
+
+const store = new Store();
+store.set('hola', 1);
+console.log(store.get('hola'));
