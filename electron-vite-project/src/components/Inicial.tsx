@@ -4,8 +4,8 @@ function About()  {
     
   return (
     <div className="about">
-      <h2>About</h2>
-      <p>This is the About page.</p>
+      <h1>Electon Page</h1>
+      <h3>Do it by Raymon and Iuga</h3>
     </div>
   );
 };
