@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, Menu, Notification, shell } from 'electron'
 import path from 'node:path'
 import Store from 'electron-store'
 
@@ -29,9 +29,6 @@ function createWindow() {
     },
   })
 
-  //quitar el menu de la app
-  // win.setMenu(null)
-
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
@@ -44,6 +41,11 @@ function createWindow() {
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
 
+  // Nuevo
+  win.once('ready-to-show', () => {
+    win?.show();
+    win?.setFullScreen(true);
+  });
 
 }
 
@@ -64,7 +66,7 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
+//Nuevo
 app.whenReady().then(() => {
   createWindow()
   const template = [
@@ -79,23 +81,143 @@ app.whenReady().then(() => {
           }
         },
         {
-          label: 'Hola',
-          submenu: [{
-            label: 'Mundo',
-            accelerator: 'Ctrl+Shift+I',
-            click: () => {
-              // app.setPath("Form","/Form");
-              win?.webContents.openDevTools();
+          label: 'Reload',
+          accelerator: 'Ctrl+R',
+          click: () => {
+            win?.webContents.reload();
+          }
+        },
+        {
+          label: 'More',
+          submenu: [
+            {
+              label: 'Inspecciona',
+              accelerator: 'Ctrl+Shift+I',
+              click: () => {
+                win?.webContents.openDevTools();
+              }
             }
-          }]
+          ]
+        },
+        {
+          label: 'Volver al Inicio',
+          click: () => {
+            win?.close();
+            createWindow();
+          },
+        },
+      ]
+    },
+    {
+      label: 'Funciones',
+      submenu: [
+        {
+          label: 'URL',
+          click: () => {
+            const currentURL = win?.webContents.getURL();
+            console.log('URL actual:', currentURL);
+          }
+        },
+        {
+          label: 'Title',
+          click: () => {
+            const pageTitle = win?.webContents.getTitle();
+            console.log('Titulo de la pagina actual:', pageTitle);
+          }
+        },
+        {
+          label: 'Window size',
+          click: () => {
+            const size = win?.getSize();
+            console.log('Tamano de la ventana:', size);
+          }
+        },
+        {
+          label: 'Style Page',
+          submenu: [
+            {
+              label: 'Black',
+              click: () => {
+                const cssCode = 'body { background-color: #000000 ; }';
+                win?.webContents.insertCSS(cssCode);
+              }
+            },
+            {
+              label: 'White',
+              click: () => {
+                const cssCode = 'body { background-color: #FFFFFF; }';
+                win?.webContents.insertCSS(cssCode);
+              }
+            }
+          ],
+        },
+      ]
+    },
+    {
+      label: 'Funciones 2',
+      submenu: [
+        {
+          label: 'Go Back',
+          click: () => {
+            win?.webContents.goBack();
+          }
+        },
+        {
+          label: 'Git Hub',
+          click: () => {
+            win?.webContents.loadURL('https://github.com/');
+          }
+        },
+        {
+          label: 'YouTube',
+          click: () => {
+            win?.webContents.loadURL('https://www.youtube.com/');
+          }
+        },
+      ]
+    },
+    {
+      label: 'Buscar',
+      submenu: [
+        {
+          label: 'Buscar URL',
+          accelerator: 'Ctrl+B',
+          click: async () => {
+            win?.webContents.loadURL('https://www.google.com/');
+          }
+        },
+      ]
+    },
+    {
+      label: 'MyTravelport',
+      submenu: [
+        {
+          label: 'Slack',
+          click: async () => {
+            win?.webContents.loadURL('https://app.slack.com/client/E037L6F8U15/C05DQU5BFFG');
+          }
+        },
+        {
+          label: 'Outlook',
         }
       ]
     }
   ]
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+  const notification = new Notification({
+    title: 'Notification',
+    body: 'Dani Iuga ha entrado a la aplicación'
+  })
+  notification.show()
+  //shell.openExternal('http://localhost:5173/');
+
 })
 
+//Nuevo
 const store = new Store();
-store.set('hola', 1);
-console.log(store.get('hola'));
+const num1 = 3;
+const num2 = 3;
+store.set('Suma', num1 + num2);
+console.log(store.get('Suma'));
+
