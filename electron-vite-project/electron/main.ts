@@ -28,6 +28,10 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
   })
+  win.once('ready-to-show', () => {
+    win?.show();
+    win?.setFullScreen(true);
+  });
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
@@ -40,12 +44,6 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
-
-  // Nuevo
-  win.once('ready-to-show', () => {
-    win?.show();
-    win?.setFullScreen(true);
-  });
 
 }
 
@@ -148,7 +146,22 @@ app.whenReady().then(() => {
                 const cssCode = 'body { background-color: #FFFFFF; }';
                 win?.webContents.insertCSS(cssCode);
               }
-            }
+            },
+            {
+              label: 'Beix',
+              click: () => {
+                const cssCode = 'body { background-color: #f4e5ce ; }';
+                win?.webContents.insertCSS(cssCode);
+              }
+            },
+            {
+              label: 'Default',
+              click: () => {
+                const cssCode = 'body { background-color: #242424 ; }';
+                win?.webContents.insertCSS(cssCode);
+              }
+            },
+            
           ],
         },
       ]
@@ -171,7 +184,8 @@ app.whenReady().then(() => {
         {
           label: 'YouTube',
           click: () => {
-            win?.webContents.loadURL('https://www.youtube.com/');
+            //win?.webContents.loadURL('https://www.youtube.com/');
+            shell.openExternal('https://www.youtube.com/');
           }
         },
       ]
@@ -205,12 +219,13 @@ app.whenReady().then(() => {
   ]
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
-  const notification = new Notification({
-    title: 'Notification',
-    body: 'Dani Iuga ha entrado a la aplicación'
-  })
-  notification.show()
-  //shell.openExternal('http://localhost:5173/');
+  // const notification = new Notification({
+  //   title: 'Notification',
+  //   body: 'Dani Iuga ha entrado a la aplicación'
+  // })
+  // notification.show()
+  
+  // shell.openExternal('http://localhost:5173/');
 
 })
 
